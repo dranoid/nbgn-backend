@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "conferences",
+  "info": {
+    "singularName": "conference",
+    "pluralName": "conferences",
+    "displayName": "conference"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "eventName": {
+      "type": "string",
+      "required": true
+    },
+    "speakers": {
+      "type": "json",
+      "required": true
+    },
+    "location": {
+      "type": "string"
+    },
+    "date": {
+      "type": "date"
+    },
+    "time": {
+      "type": "time"
+    },
+    "umage": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "eventImages": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": true
+    },
+    "eventImageDesc": {
+      "type": "text"
+    },
+    "body": {
+      "type": "blocks",
+      "required": true
+    }
+  }
+}
