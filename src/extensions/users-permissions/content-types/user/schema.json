@@ -82,6 +82,9 @@
     "membershipVerified": {
       "type": "boolean",
       "default": false
+    },
+    "phoneNumber": {
+      "type": "string"
     }
   }
 }
