@@ -4,7 +4,8 @@
   "info": {
     "singularName": "conference",
     "pluralName": "conferences",
-    "displayName": "conference"
+    "displayName": "conference",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -22,25 +23,27 @@
     "location": {
       "type": "string"
     },
-    "date": {
+    "startDate": {
       "type": "date"
     },
     "time": {
       "type": "time"
     },
-    "umage": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "eventImages": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": true
+      ]
     },
     "eventImageDesc": {
       "type": "text"
@@ -48,6 +51,9 @@
     "body": {
       "type": "blocks",
       "required": true
+    },
+    "endDate": {
+      "type": "date"
     }
   }
 }

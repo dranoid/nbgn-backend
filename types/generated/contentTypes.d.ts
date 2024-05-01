@@ -395,6 +395,7 @@ export interface ApiConferenceConference extends Schema.CollectionType {
     singularName: 'conference';
     pluralName: 'conferences';
     displayName: 'conference';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -403,12 +404,13 @@ export interface ApiConferenceConference extends Schema.CollectionType {
     eventName: Attribute.String & Attribute.Required;
     speakers: Attribute.JSON & Attribute.Required;
     location: Attribute.String;
-    date: Attribute.Date;
+    startDate: Attribute.Date;
     time: Attribute.Time;
-    umage: Attribute.Media;
+    image: Attribute.Media;
     eventImages: Attribute.Media;
     eventImageDesc: Attribute.Text;
     body: Attribute.Blocks & Attribute.Required;
+    endDate: Attribute.Date;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
