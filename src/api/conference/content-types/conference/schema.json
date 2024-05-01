@@ -48,12 +48,11 @@
     "eventImageDesc": {
       "type": "text"
     },
-    "body": {
-      "type": "blocks",
-      "required": true
-    },
     "endDate": {
       "type": "date"
+    },
+    "body": {
+      "type": "text"
     }
   }
 }

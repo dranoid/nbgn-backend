@@ -410,8 +410,8 @@ export interface ApiConferenceConference extends Schema.CollectionType {
     image: Attribute.Media;
     eventImages: Attribute.Media;
     eventImageDesc: Attribute.Text;
-    body: Attribute.Blocks & Attribute.Required;
     endDate: Attribute.Date;
+    body: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
