@@ -85,6 +85,10 @@
     },
     "phoneNumber": {
       "type": "string"
+    },
+    "position": {
+      "type": "string",
+      "default": "Member"
     }
   }
 }

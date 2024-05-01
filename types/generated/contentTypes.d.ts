@@ -842,6 +842,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     membershipId: Attribute.String & Attribute.Unique;
     membershipVerified: Attribute.Boolean & Attribute.DefaultTo<false>;
     phoneNumber: Attribute.String;
+    position: Attribute.String & Attribute.DefaultTo<'Member'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
