@@ -6,15 +6,6 @@ export class LoginDto {
   email: string;
 
   @IsString()
-  @Min(6)
-  password: string;
-}
-export class RegisterDto {
-  @IsString()
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @Min(6)
+  // @Min(6)
   password: string;
 }

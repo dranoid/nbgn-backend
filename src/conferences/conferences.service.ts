@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateConferenceDto } from './dto/create-conference.dto';
 import { UpdateConferenceDto } from './dto/update-conference.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Conference } from './entities/conference.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ConferencesService {
-  create(createConferenceDto: CreateConferenceDto) {
-    return 'This action adds a new conference';
+  constructor(
+    @InjectRepository(Conference)
+    private conferenceRepository: Repository<Conference>,
+  ) {}
+
+  async create(createConferenceDto: CreateConferenceDto) {
+    return await this.conferenceRepository.save(createConferenceDto);
   }
 
-  findAll() {
-    return `This action returns all conferences`;
+  async findAll() {
+    return await this.conferenceRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} conference`;
+  async findOne(id: string) {
+    return await this.conferenceRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateConferenceDto: UpdateConferenceDto) {
-    return `This action updates a #${id} conference`;
+  async update(id: string, updateConferenceDto: UpdateConferenceDto) {
+    const conference = await this.conferenceRepository.findOne({
+      where: { id },
+    });
+
+    if (!conference) {
+      throw new NotFoundException(`Event with ID: ${id} not found`);
+    }
+
+    const updatedConference = await this.conferenceRepository.merge(
+      conference,
+      updateConferenceDto,
+    );
+
+    this.conferenceRepository.save(updatedConference);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} conference`;
+  async remove(id: string) {
+    return await this.conferenceRepository.delete(id);
   }
 }
