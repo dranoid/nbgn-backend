@@ -14,6 +14,7 @@ import { UpdateConferenceDto } from './dto/update-conference.dto';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesEnum } from 'src/auth/dto/roles.enum';
 import { RolesGuard } from 'src/auth/auth.guard';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('conferences')
 export class ConferencesController {
@@ -27,8 +28,8 @@ export class ConferencesController {
   }
 
   @Get()
-  findAll() {
-    return this.conferencesService.findAll();
+  findAll(@Paginate() query: PaginateQuery) {
+    return this.conferencesService.findAll(query);
   }
 
   @Get(':id')

@@ -15,6 +15,7 @@ import { Public } from 'src/auth/public.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesEnum } from 'src/auth/dto/roles.enum';
 import { RolesGuard } from 'src/auth/auth.guard';
+import { Paginate, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('blogs')
 export class BlogsController {
@@ -29,8 +30,8 @@ export class BlogsController {
 
   @Public()
   @Get()
-  findAll() {
-    return this.blogsService.findAll();
+  findAll(@Paginate() query: PaginateQuery) {
+    return this.blogsService.findAll(query);
   }
 
   @Public()

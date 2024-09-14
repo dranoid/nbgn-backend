@@ -4,6 +4,12 @@ import { UpdateBlogDto } from './dto/update-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
 import { Repository } from 'typeorm';
+import {
+  FilterOperator,
+  paginate,
+  PaginateConfig,
+  PaginateQuery,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class BlogsService {
@@ -17,8 +23,27 @@ export class BlogsService {
     //
   }
 
-  async findAll() {
-    return await this.blogsRepository.find();
+  async findAll(query: PaginateQuery) {
+    const filterOperations = [
+      FilterOperator.BTW,
+      FilterOperator.GT,
+      FilterOperator.GTE,
+      FilterOperator.LTE,
+      FilterOperator.LT,
+      FilterOperator.EQ,
+    ];
+    const paginateOptions: PaginateConfig<Blog> = {
+      sortableColumns: ['createdAt', 'title', 'author'],
+      defaultSortBy: [['createdAt', 'DESC']],
+      searchableColumns: ['title', 'author', 'id', 'description', 'tags'],
+      filterableColumns: {
+        tags: filterOperations,
+        author: filterOperations,
+        title: filterOperations,
+      },
+    };
+
+    return paginate(query, this.blogsRepository, paginateOptions);
   }
 
   async findOne(id: string) {
@@ -33,7 +58,7 @@ export class BlogsService {
 
     const updatedBlogPost = this.blogsRepository.merge(blogPost, updateBlogDto);
 
-    this.blogsRepository.save(updatedBlogPost);
+    return this.blogsRepository.save(updatedBlogPost);
   }
 
   async remove(id: string) {

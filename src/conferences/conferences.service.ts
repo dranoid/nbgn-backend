@@ -4,6 +4,12 @@ import { UpdateConferenceDto } from './dto/update-conference.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Conference } from './entities/conference.entity';
 import { Repository } from 'typeorm';
+import {
+  FilterOperator,
+  paginate,
+  PaginateConfig,
+  PaginateQuery,
+} from 'nestjs-paginate';
 
 @Injectable()
 export class ConferencesService {
@@ -16,8 +22,29 @@ export class ConferencesService {
     return await this.conferenceRepository.save(createConferenceDto);
   }
 
-  async findAll() {
-    return await this.conferenceRepository.find();
+  async findAll(query: PaginateQuery) {
+    const filterOperations = [
+      FilterOperator.BTW,
+      FilterOperator.GT,
+      FilterOperator.GTE,
+      FilterOperator.LTE,
+      FilterOperator.LT,
+      FilterOperator.EQ,
+    ];
+    const paginateOptions: PaginateConfig<Conference> = {
+      sortableColumns: ['createdAt', 'startDate'],
+      defaultSortBy: [['createdAt', 'DESC']],
+      searchableColumns: ['eventName', 'body', 'speakers', 'id'],
+      filterableColumns: {
+        eventName: filterOperations,
+        startDate: filterOperations,
+        endDate: filterOperations,
+        speakers: filterOperations,
+        tags: filterOperations,
+      },
+    };
+
+    return paginate(query, this.conferenceRepository, paginateOptions);
   }
 
   async findOne(id: string) {
@@ -38,7 +65,7 @@ export class ConferencesService {
       updateConferenceDto,
     );
 
-    this.conferenceRepository.save(updatedConference);
+    return this.conferenceRepository.save(updatedConference);
   }
 
   async remove(id: string) {
