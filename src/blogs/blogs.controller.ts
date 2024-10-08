@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -16,6 +18,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RolesEnum } from 'src/auth/dto/roles.enum';
 import { RolesGuard } from 'src/auth/auth.guard';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('blogs')
 export class BlogsController {
@@ -24,7 +27,16 @@ export class BlogsController {
   @Roles(RolesEnum.Admin)
   @UseGuards(RolesGuard)
   @Post()
-  create(@Body() createBlogDto: CreateBlogDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  create(
+    @Body() createBlogDto: CreateBlogDto,
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    if (image) {
+      console.log('Image received:', image.originalname);
+    } else {
+      console.log('No image received');
+    }
     return this.blogsService.create(createBlogDto);
   }
 
