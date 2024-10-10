@@ -61,7 +61,7 @@ export class AuthService {
       ...createUserDto,
       email,
       password: hashedPassword,
-      roles: [RolesEnum.User],
+      roles: [RolesEnum.Admin],
     });
     createdUser.verified = false;
     createdUser.membershipId = await this.generateMembershipId();
@@ -73,6 +73,20 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.roles };
     const accessToken = this.jwtService.sign(payload);
     return { user: userWithoutPasswordAndRoles, accessToken };
+  }
+
+  async getUserProfile(req: any) {
+    const userId = req['user'].userId;
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const userWithoutPasswordAndRoles = { ...user };
+    delete userWithoutPasswordAndRoles.password;
+    delete userWithoutPasswordAndRoles.roles;
+    return {
+      user: userWithoutPasswordAndRoles,
+    };
   }
 
   async generateMembershipId() {

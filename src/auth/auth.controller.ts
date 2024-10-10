@@ -22,7 +22,7 @@ export class AuthController {
 
   @Get('profile')
   getProfile(@Request() req) {
-    return req.user;
+    return this.authService.getUserProfile(req);
   }
 
   // TODO: forgot password
