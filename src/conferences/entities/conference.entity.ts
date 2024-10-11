@@ -1,8 +1,8 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -29,7 +29,7 @@ export class Conference {
   @Column()
   time: string;
 
-  @Column()
+  @Column('simple-array', { nullable: true })
   image: string;
 
   @Column('text')

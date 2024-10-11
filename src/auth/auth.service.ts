@@ -61,7 +61,7 @@ export class AuthService {
       ...createUserDto,
       email,
       password: hashedPassword,
-      roles: [RolesEnum.Admin],
+      roles: [RolesEnum.User],
     });
     createdUser.verified = false;
     createdUser.membershipId = await this.generateMembershipId();

@@ -1,8 +1,8 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -14,8 +14,8 @@ export class Blog {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column({ type: 'simple-array', nullable: true })
+  image: string[];
 
   @Column('simple-array')
   tags: string[];

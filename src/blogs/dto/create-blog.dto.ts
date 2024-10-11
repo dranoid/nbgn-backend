@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateBlogDto {
   @IsString()
@@ -7,7 +7,7 @@ export class CreateBlogDto {
 
   @IsOptional()
   @IsString()
-  image?: string;
+  images?: string[];
 
   @IsArray()
   @IsString({ each: true }) // Ensures each element in the array is a string
