@@ -19,21 +19,28 @@ import { RolesEnum } from 'src/auth/dto/roles.enum';
 import { RolesGuard } from 'src/auth/auth.guard';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Controller('blogs')
 export class BlogsController {
-  constructor(private readonly blogsService: BlogsService) {}
+  constructor(
+    private readonly blogsService: BlogsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Roles(RolesEnum.Admin)
   @UseGuards(RolesGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
-  create(
+  @UseInterceptors(FileInterceptor('headerImage'))
+  async create(
     @Body() createBlogDto: CreateBlogDto,
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile() headerImage: Express.Multer.File,
   ) {
-    if (image) {
-      console.log('Image received:', image.originalname);
+    if (headerImage) {
+      console.log('Image received:', headerImage.originalname);
+
+      const imageUrl = await this.cloudinaryService.uploadImage(headerImage);
+      createBlogDto.headerImage = imageUrl.secure_url;
     } else {
       console.log('No image received');
     }

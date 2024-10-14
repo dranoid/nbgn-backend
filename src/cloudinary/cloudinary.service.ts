@@ -20,7 +20,7 @@ export class CloudinaryService {
         ...options,
         filename_override: file.originalname,
         use_filename: true,
-        unique_filename: false,
+        unique_filename: true,
         overwrite: true,
       };
 
@@ -33,6 +33,15 @@ export class CloudinaryService {
       );
 
       toStream(file.buffer).pipe(upload);
+    });
+  }
+
+  async deleteImage(publicId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      v2.uploader.destroy(publicId, (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      });
     });
   }
 }

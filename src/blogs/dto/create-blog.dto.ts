@@ -6,8 +6,13 @@ export class CreateBlogDto {
   title: string;
 
   @IsOptional()
-  @IsString()
+  @IsArray()
+  @IsString({ each: true })
   images?: string[];
+
+  @IsOptional()
+  @IsString()
+  headerImage?: string;
 
   @IsArray()
   @IsString({ each: true }) // Ensures each element in the array is a string

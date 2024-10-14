@@ -14,6 +14,9 @@ export class Blog {
   @Column()
   title: string;
 
+  @Column({ nullable: true })
+  headerImage: string;
+
   @Column({ type: 'simple-array', nullable: true })
   image: string[];
 

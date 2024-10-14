@@ -1,14 +1,16 @@
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module, OnModuleInit } from '@nestjs/common';
+
 import { AppController } from './app.controller';
+import AppDataSource from '../typeorm.config';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
 import { BlogsModule } from './blogs/blogs.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ConferencesModule } from './conferences/conferences.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import AppDataSource from '../typeorm.config';
 import { DataSource } from 'typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -21,26 +23,13 @@ import { DataSource } from 'typeorm';
       useFactory: async () => {
         const options = { ...AppDataSource.options };
         return options;
-        // return {
-        //   type: 'postgres',
-        //   host: configService.get<string>('DB_HOST'),
-        //   port: configService.get<number>('DB_PORT'),
-        //   username: configService.get<string>('DB_USER'),
-        //   password: configService.get<string>('DB_PASSWORD'),
-        //   database: configService.get<string>('DB_NAME'),
-        //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        //   migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
-        //   ssl: {
-        //     rejectUnauthorized: true,
-        //     ca: configService.get('DB_CA_CERT'),
-        //   },
-        // };
       },
     }),
     AuthModule,
     UserModule,
     BlogsModule,
     ConferencesModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
