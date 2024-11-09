@@ -12,7 +12,7 @@ export class CreateBlogDto {
 
   @IsOptional()
   @IsString()
-  headerImage?: string;
+  headerImage?: any;
 
   @IsArray()
   @IsString({ each: true }) // Ensures each element in the array is a string

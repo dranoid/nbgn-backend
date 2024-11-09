@@ -9,6 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -34,15 +36,19 @@ export class BlogsController {
   @UseInterceptors(FileInterceptor('headerImage'))
   async create(
     @Body() createBlogDto: CreateBlogDto,
-    @UploadedFile() headerImage: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+        ],
+        fileIsRequired: false, // Make file optional
+      }),
+    )
+    headerImage: Express.Multer.File,
   ) {
     if (headerImage) {
-      console.log('Image received:', headerImage.originalname);
-
       const imageUrl = await this.cloudinaryService.uploadImage(headerImage);
       createBlogDto.headerImage = imageUrl.secure_url;
-    } else {
-      console.log('No image received');
     }
     return this.blogsService.create(createBlogDto);
   }
@@ -62,8 +68,45 @@ export class BlogsController {
   @Roles(RolesEnum.Admin)
   @UseGuards(RolesGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {
-    return this.blogsService.update(id, updateBlogDto);
+  @UseInterceptors(FileInterceptor('headerImage'))
+  async update(
+    @Param('id') id: string,
+    @Body() updateBlogDto: UpdateBlogDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
+        ],
+        fileIsRequired: false, // Make file optional
+      }),
+    )
+    headerImage?: Express.Multer.File,
+  ) {
+    let payload = updateBlogDto;
+
+    // If we received multipart form data, parse the string arrays
+    if (headerImage || updateBlogDto instanceof FormData) {
+      payload = {
+        ...updateBlogDto,
+        tags:
+          typeof updateBlogDto.tags === 'string'
+            ? JSON.parse(updateBlogDto.tags)
+            : updateBlogDto.tags,
+        images:
+          typeof updateBlogDto.images === 'string'
+            ? JSON.parse(updateBlogDto.images)
+            : updateBlogDto.images,
+      };
+    }
+
+    // Add the header image if present
+    if (headerImage) {
+      payload.headerImage = headerImage;
+    }
+
+    console.log(payload, 'payload');
+
+    return this.blogsService.update(id, payload);
   }
 
   @Roles(RolesEnum.Admin)
