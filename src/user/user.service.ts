@@ -34,7 +34,12 @@ export class UserService {
       FilterOperator.EQ,
     ];
     const paginateOptions: PaginateConfig<User> = {
-      sortableColumns: ['createdAt', 'affiliation', 'membershipId'],
+      sortableColumns: [
+        'createdAt',
+        'affiliation',
+        'membershipId',
+        'dateOfBirth',
+      ],
       defaultSortBy: [['createdAt', 'DESC']],
       searchableColumns: [
         'id',
@@ -44,10 +49,36 @@ export class UserService {
         'affiliation',
         'email',
         'phoneNumber',
+        'title',
+        'gender',
+        'jobTitle',
+        'highestDegree',
+        'careerStatus',
       ],
       filterableColumns: {
         verified: filterOperations,
+        gender: [FilterOperator.EQ],
+        careerStatus: [FilterOperator.EQ],
       },
+      select: [
+        'id',
+        'email',
+        'membershipId',
+        'phoneNumber',
+        'verified',
+        'roles',
+        'title',
+        'firstName',
+        'lastName',
+        'gender',
+        'affiliation',
+        'dateOfBirth',
+        'jobTitle',
+        'highestDegree',
+        'careerStatus',
+        'createdAt',
+        'updatedAt',
+      ],
     };
 
     return paginate(query, this.userRepository, paginateOptions);

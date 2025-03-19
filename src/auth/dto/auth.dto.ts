@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Min } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class LoginDto {
   @IsString()

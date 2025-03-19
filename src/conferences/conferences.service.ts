@@ -10,12 +10,14 @@ import {
   PaginateConfig,
   PaginateQuery,
 } from 'nestjs-paginate';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class ConferencesService {
   constructor(
     @InjectRepository(Conference)
     private conferenceRepository: Repository<Conference>,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createConferenceDto: CreateConferenceDto) {
@@ -34,7 +36,7 @@ export class ConferencesService {
     const paginateOptions: PaginateConfig<Conference> = {
       sortableColumns: ['createdAt', 'startDate'],
       defaultSortBy: [['createdAt', 'DESC']],
-      searchableColumns: ['eventName', 'body', 'speakers', 'id'],
+      searchableColumns: ['eventName', 'body', 'speakers', 'id', 'location'],
       filterableColumns: {
         eventName: filterOperations,
         startDate: filterOperations,
@@ -52,6 +54,8 @@ export class ConferencesService {
   }
 
   async update(id: string, updateConferenceDto: UpdateConferenceDto) {
+    console.log(updateConferenceDto, 'updateConferenceDto');
+
     const conference = await this.conferenceRepository.findOne({
       where: { id },
     });
@@ -59,6 +63,48 @@ export class ConferencesService {
     if (!conference) {
       throw new NotFoundException(`Event with ID: ${id} not found`);
     }
+
+    // Handle image updates and deletions
+    if (conference.image) {
+      // Check if current image is in deletedImages array
+      if (updateConferenceDto.deletedImages?.includes(conference.image)) {
+        // If we have a new image, use it
+        if (updateConferenceDto.image) {
+          conference.image = updateConferenceDto.image;
+        } else {
+          // If no new image, set to null
+          conference.image = null;
+        }
+      } else if (updateConferenceDto.image) {
+        // If we have a new image but current image wasn't marked for deletion
+        // Add current image to deletedImages array so it gets cleaned up
+        if (!updateConferenceDto.deletedImages) {
+          updateConferenceDto.deletedImages = [];
+        }
+        updateConferenceDto.deletedImages.push(conference.image);
+        conference.image = updateConferenceDto.image;
+      }
+    } else if (updateConferenceDto.image) {
+      // No existing image but we have a new one
+      conference.image = updateConferenceDto.image;
+    }
+
+    // Handle deletion of all images in deletedImages array
+    if (updateConferenceDto.deletedImages?.length > 0) {
+      for (const imageUrl of updateConferenceDto.deletedImages) {
+        try {
+          const publicId = imageUrl.split('/').pop()?.split('.')[0];
+          if (publicId) {
+            await this.cloudinaryService.deleteImage(publicId);
+          }
+        } catch (error) {
+          console.error(`Failed to delete image: ${imageUrl}`, error);
+        }
+      }
+    }
+
+    // Remove the deletedImages from the DTO as it's not a database field
+    delete updateConferenceDto.deletedImages;
 
     const updatedConference = await this.conferenceRepository.merge(
       conference,

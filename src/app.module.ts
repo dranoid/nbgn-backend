@@ -11,6 +11,7 @@ import { ConferencesModule } from './conferences/conferences.module';
 import { DataSource } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
     BlogsModule,
     ConferencesModule,
     CloudinaryModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

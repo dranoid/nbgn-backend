@@ -11,6 +11,7 @@ import {
   UploadedFile,
   ParseFilePipe,
   MaxFileSizeValidator,
+  BadRequestException,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -72,16 +73,25 @@ export class BlogsController {
   async update(
     @Param('id') id: string,
     @Body() updateBlogDto: UpdateBlogDto,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), // 5MB
-        ],
-        fileIsRequired: false, // Make file optional
-      }),
-    )
+    @UploadedFile()
     headerImage?: Express.Multer.File,
   ) {
+    // Log incoming data
+    console.log('=== INCOMING BLOG UPDATE REQUEST ===');
+    console.log('Files received:', {
+      headerImage: headerImage
+        ? {
+            filename: headerImage.originalname,
+            size: headerImage.size,
+          }
+        : null,
+    });
+
+    // Add size validation for uploaded file
+    if (headerImage?.size > 5 * 1024 * 1024) {
+      throw new BadRequestException('Header image exceeds 5MB limit');
+    }
+
     let payload = updateBlogDto;
 
     // If we received multipart form data, parse the string arrays
@@ -96,17 +106,29 @@ export class BlogsController {
           typeof updateBlogDto.images === 'string'
             ? JSON.parse(updateBlogDto.images)
             : updateBlogDto.images,
+        deletedImages:
+          typeof updateBlogDto.deletedImages === 'string'
+            ? JSON.parse(updateBlogDto.deletedImages)
+            : updateBlogDto.deletedImages,
       };
     }
 
-    // Add the header image if present
+    // Handle header image upload if provided
+    let headerImageUrl;
     if (headerImage) {
-      payload.headerImage = headerImage;
+      const result = await this.cloudinaryService.uploadImage(headerImage);
+      headerImageUrl = result.secure_url;
+      console.log('Uploaded header image:', headerImageUrl);
     }
 
-    console.log(payload, 'payload');
+    // Prepare the final update payload
+    const finalPayload = {
+      ...payload,
+      headerImage: headerImageUrl || undefined,
+    };
 
-    return this.blogsService.update(id, payload);
+    console.log('Final payload:', finalPayload);
+    return this.blogsService.update(id, finalPayload);
   }
 
   @Roles(RolesEnum.Admin)

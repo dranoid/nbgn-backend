@@ -18,6 +18,7 @@ import { RolesEnum } from 'src/auth/dto/roles.enum';
 import { RolesGuard } from 'src/auth/auth.guard';
 import { Request } from 'express';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
+import * as bcrypt from 'bcrypt';
 
 @Controller('user')
 export class UserController {

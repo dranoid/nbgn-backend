@@ -33,9 +33,6 @@ export class Blog {
   author: string;
 
   @CreateDateColumn()
-  date: Date;
-
-  @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()

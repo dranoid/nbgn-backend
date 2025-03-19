@@ -12,6 +12,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { RolesEnum } from './dto/roles.enum';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private userService: UserService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -94,5 +96,46 @@ export class AuthService {
     const currentYear = new Date().getFullYear();
     const membershipId = `NBGN/${currentYear}/${count + 1}`;
     return membershipId;
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      // Don't reveal if email exists or not
+      return { message: 'If the email exists, a reset password will be sent' };
+    }
+
+    // Generate random password
+    const newPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password
+    await this.userRepository.update(user.id, { password: hashedPassword });
+
+    // Send email
+    await this.emailService.sendPasswordResetEmail(email, newPassword);
+
+    return { message: 'If the email exists, a reset password will be sent' };
+  }
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid old password');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.userRepository.update(userId, { password: hashedPassword });
+
+    return { message: 'Password changed successfully' };
   }
 }

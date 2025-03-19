@@ -1,10 +1,10 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsOptional,
-  IsArray,
   IsNotEmpty,
   IsDateString,
-  IsUrl,
+  IsArray,
 } from 'class-validator';
 
 export class CreateConferenceDto {
@@ -15,6 +15,9 @@ export class CreateConferenceDto {
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty({ each: true })
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : [],
+  )
   speakers: string[];
 
   @IsString()
@@ -33,10 +36,6 @@ export class CreateConferenceDto {
   @IsNotEmpty()
   time: string;
 
-  @IsUrl()
-  @IsNotEmpty()
-  image: string;
-
   @IsString()
   @IsNotEmpty()
   body: string;
@@ -44,9 +43,8 @@ export class CreateConferenceDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  eventImages?: string[];
-
-  @IsOptional()
-  @IsString()
-  eventImageDesc?: string;
+  @Transform(({ value }) =>
+    Array.isArray(value) ? value : value ? [value] : [],
+  )
+  eventImageDescriptions?: string[];
 }

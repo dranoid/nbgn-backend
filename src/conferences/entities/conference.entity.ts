@@ -29,7 +29,7 @@ export class Conference {
   @Column()
   time: string;
 
-  @Column('simple-array', { nullable: true })
+  @Column({ nullable: true })
   image: string;
 
   @Column('text')
@@ -38,8 +38,8 @@ export class Conference {
   @Column('simple-array', { nullable: true })
   eventImages: string[];
 
-  @Column({ nullable: true })
-  eventImageDesc: string;
+  @Column('simple-array', { nullable: true })
+  eventImageDescriptions: string[];
 
   @CreateDateColumn()
   date: Date;

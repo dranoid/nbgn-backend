@@ -52,4 +52,8 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   careerStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  password?: string;
 }

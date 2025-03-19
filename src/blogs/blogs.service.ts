@@ -135,72 +135,55 @@ export class BlogsService {
   //   return this.blogsRepository.save(updatedBlogPost);
   // }
 
-  async update(
-    id: string,
-    payload: UpdateBlogDto & { headerImage?: Express.Multer.File },
-  ) {
-    // Find the existing blog post
+  async update(id: string, payload: UpdateBlogDto) {
     const blogPost = await this.blogsRepository.findOne({ where: { id } });
     if (!blogPost) {
       throw new NotFoundException(`Blog post with id ${id} not found`);
     }
 
-    console.log('payload header image', payload.headerImage);
-    // Handle header image upload if present
-    if (payload.headerImage && payload.headerImage !== blogPost.headerImage) {
-      // Upload new header image
-      const uploadResult = await this.cloudinaryService.uploadImage(
-        payload.headerImage,
-      );
-
-      // Delete old header image if it exists
-      if (blogPost.headerImage) {
-        const publicId = this.getPublicIdFromUrl(blogPost.headerImage);
-        await this.cloudinaryService.deleteImage(publicId);
+    // Handle image updates and deletions
+    if (blogPost.headerImage) {
+      // Check if current image is in deletedImages array
+      if (payload.deletedImages?.includes(blogPost.headerImage)) {
+        // If we have a new image URL, use it
+        if (payload.headerImage) {
+          blogPost.headerImage = payload.headerImage;
+        } else {
+          // If no new image, set to null
+          blogPost.headerImage = null;
+        }
+      } else if (payload.headerImage) {
+        // If we have a new image but current image wasn't marked for deletion
+        // Add current image to deletedImages array so it gets cleaned up
+        if (!payload.deletedImages) {
+          payload.deletedImages = [];
+        }
+        payload.deletedImages.push(blogPost.headerImage);
+        blogPost.headerImage = payload.headerImage;
       }
-
-      // Update the payload with the new image URL
-      payload.headerImage = uploadResult.secure_url;
+    } else if (payload.headerImage) {
+      // No existing image but we have a new one
+      blogPost.headerImage = payload.headerImage;
     }
 
-    // Handle image cleanup if body content has changed
-    if (payload.body && payload.body !== blogPost.body && payload.images) {
-      const oldImages = blogPost.images || [];
-      const newImages = payload.images;
-
-      // Find and delete unused images
-      const removedImages = oldImages.filter((img) => !newImages.includes(img));
-      await Promise.all(
-        removedImages.map(async (imageUrl) => {
-          try {
-            const publicId = this.getPublicIdFromUrl(imageUrl);
+    // Handle deletion of all images in deletedImages array
+    if (payload.deletedImages?.length > 0) {
+      for (const imageUrl of payload.deletedImages) {
+        try {
+          const publicId = this.getPublicIdFromUrl(imageUrl);
+          if (publicId) {
             await this.cloudinaryService.deleteImage(publicId);
-          } catch (error) {
-            console.error(`Failed to delete image: ${imageUrl}`, error);
           }
-        }),
-      );
+        } catch (error) {
+          console.error(`Failed to delete image: ${imageUrl}`, error);
+        }
+      }
     }
 
-    // If a new headerImage URL is provided directly (not as a file)
-    if (
-      payload.headerImage &&
-      typeof payload.headerImage === 'string' &&
-      payload.headerImage !== blogPost.headerImage &&
-      blogPost.headerImage
-    ) {
-      const publicId = this.getPublicIdFromUrl(blogPost.headerImage);
-      await this.cloudinaryService.deleteImage(publicId);
-    }
+    // Remove the deletedImages from the payload as it's not a database field
+    delete payload.deletedImages;
 
-    // Remove the file object before updating DB
-    const updateData = { ...payload };
-    if (updateData.headerImage instanceof File) {
-      delete updateData.headerImage;
-    }
-
-    // Merge and save the updates
-    const updatedBlogPost = this.blogsRepository.merge(blogPost, updateData);
+    const updatedBlogPost = this.blogsRepository.merge(blogPost, payload);
     return this.blogsRepository.save(updatedBlogPost);
   }
 

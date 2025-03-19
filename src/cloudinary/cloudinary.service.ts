@@ -39,7 +39,10 @@ export class CloudinaryService {
   async deleteImage(publicId: string): Promise<any> {
     return new Promise((resolve, reject) => {
       v2.uploader.destroy(publicId, (error, result) => {
-        if (error) return reject(error);
+        if (error) {
+          console.log(error);
+          return reject(error);
+        }
         resolve(result);
       });
     });
