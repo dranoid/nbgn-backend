@@ -22,6 +22,7 @@ import { RolesGuard } from 'src/auth/auth.guard';
 import { Paginate, PaginateQuery } from 'nestjs-paginate';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CATCH_WATERMARK } from '@nestjs/common/constants';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('conferences')
 export class ConferencesController {
@@ -89,6 +90,7 @@ export class ConferencesController {
     return this.conferencesService.findAll(query);
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.conferencesService.findOne(id);
